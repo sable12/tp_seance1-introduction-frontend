@@ -57,7 +57,7 @@ En JSX, `className` est utilisé au lieu de `class` car :
 **Avec l'index comme clé :**
 ```jsx
 {projects.map((p, i) => (
-  <li key={i}> // ❌ Problématique
+  <li key={i}> //  Problématique
 ```
 
 **Problèmes avec l'index :**
