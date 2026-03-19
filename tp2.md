@@ -17,7 +17,7 @@ Le useAuth() lance une erreur si le context est null pour prévenir le bug du "c
 
 **Q3 : Sans Context, comment feriez-vous pour partager le user entre Header, Sidebar et Login ? Combien de props ?**
 
-Sans Context, il faudrait faire du "prop drilling" :
+Sans Context, il faudrait faire du "prop drilling"  :
 
 ```
 App (state auth)
