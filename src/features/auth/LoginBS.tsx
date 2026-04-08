@@ -1,34 +1,52 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Container, Card, Form, Button, Alert, Spinner } from 'react-bootstrap';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from './AuthContext';
+import { useDispatch, useSelector } from 'react-redux';
+import type { RootState } from '../../store';
+import { loginStart, loginSuccess, loginFailure } from './authSlice';
 import api from '../../api/axios';
 
 export default function LoginBS() {
-  const { state, dispatch } = useAuth();
+  const dispatch = useDispatch();
+  const { user, loading, error } = useSelector((state: RootState) => state.auth);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
   const from = (location.state as { from?: string } | null)?.from ?? '/dashboard';
 
+  useEffect(() => {
+    if (user) {
+      navigate(from, { replace: true });
+    }
+  }, [user, navigate, from]);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    dispatch({ type: 'LOGIN_START' });
+    dispatch(loginStart());
 
     try {
       const { data: users } = await api.get(`/users?email=${email}`);
 
       if (users.length === 0 || users[0].password !== password) {
-        dispatch({ type: 'LOGIN_FAILURE', payload: 'Email ou mot de passe incorrect' });
+        dispatch(loginFailure('Email ou mot de passe incorrect'));
         return;
       }
 
-      const { password: _, ...user } = users[0];
-      dispatch({ type: 'LOGIN_SUCCESS', payload: user });
+      const { password: _, ...userData } = users[0];
+      const fakeToken = btoa(
+        JSON.stringify({
+          userId: userData.id,
+          email: userData.email,
+          role: 'admin',
+          exp: Date.now() + 3600000,
+        })
+      );
+
+      dispatch(loginSuccess({ user: userData, token: fakeToken }));
       navigate(from, { replace: true });
     } catch {
-      dispatch({ type: 'LOGIN_FAILURE', payload: 'Erreur serveur' });
+      dispatch(loginFailure('Erreur serveur'));
     }
   }
 
@@ -47,7 +65,7 @@ export default function LoginBS() {
             Connectez-vous pour continuer
           </Card.Text>
 
-          {state.error && <Alert variant="danger">{state.error}</Alert>}
+          {error && <Alert variant="danger">{error}</Alert>}
 
           <Form onSubmit={handleSubmit}>
             <Form.Group className="mb-3" controlId="email">
@@ -72,8 +90,8 @@ export default function LoginBS() {
               />
             </Form.Group>
 
-            <Button variant="success" type="submit" className="w-100" disabled={state.loading}>
-              {state.loading ? (
+            <Button variant="success" type="submit" className="w-100" disabled={loading}>
+              {loading ? (
                 <>
                   <Spinner animation="border" size="sm" className="me-2" />
                   Connexion...

@@ -1,3 +1,7 @@
+import { useEffect } from 'react';
+import { useSelector } from 'react-redux';
+import type { RootState } from './store';
+import { setAuthToken } from './api/axios';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import LoginBS from './features/auth/LoginBS';
 import Dashboard from './pages/Dashboard';
@@ -5,6 +9,12 @@ import ProjectDetail from './pages/ProjectDetail';
 import ProtectedRoute from './components/ProtectedRoute';
 
 export default function App() {
+  const token = useSelector((state: RootState) => state.auth.token);
+
+  useEffect(() => {
+    setAuthToken(token);
+  }, [token]);
+
   return (
     <Routes>
       <Route path="/login" element={<LoginBS />} />

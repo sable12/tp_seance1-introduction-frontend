@@ -34,6 +34,11 @@
       "id": "3",
       "name": "API Backend",
       "color": "#2ecc71"
+    },
+    {
+      "id": "cf8a",
+      "name": "ee",
+      "color": "#3498db"
     }
   ],
   "columns": [

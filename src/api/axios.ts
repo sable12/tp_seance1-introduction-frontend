@@ -6,4 +6,13 @@ const api = axios.create({
   timeout: 5000,
 });
 
+//fonction pour ajouter le token d'authentification aux requêtes
+export function setAuthToken(token: string | null) {
+ if (token) {
+ api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+ } else {
+ delete api.defaults.headers.common['Authorization'];
+ }
+}
+
 export default api;
